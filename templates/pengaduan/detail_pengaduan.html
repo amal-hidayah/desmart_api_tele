@@ -1,0 +1,72 @@
+{% extends 'layout.html' %}
+{% block title %}{{ title }} - Aplikasi Desa{% endblock %}
+
+{% block content %}
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">{{ pengaduan.judul }}</h2>
+        <p class="text-sm text-gray-600 mb-4">
+            Diajukan oleh: <span class="font-semibold">{{ pengaduan.pembuat.username }}</span> ({{ pengaduan.tanggal_pengaduan.strftime('%d %B %Y, %H:%M') }})
+        </p>
+
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Deskripsi:</h3>
+            <p class="text-gray-800 leading-relaxed">{{ pengaduan.deskripsi }}</p>
+        </div>
+
+        <div class="mb-6 border-t pt-4">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Detail Lokasi:</h3>
+            <p class="text-gray-800 mb-2">Lokasi Spesifik: {{ pengaduan.lokasi }}</p>
+            {% if pengaduan.latitude and pengaduan.longitude %}
+                <p class="text-gray-800 mb-2">Koordinat GPS: Latitude {{ pengaduan.latitude }}, Longitude {{ pengaduan.longitude }}</p>
+                <a href="http://maps.google.com/maps?q={{ pengaduan.latitude }},{{ pengaduan.longitude }}" target="_blank" class="text-blue-500 hover:underline">Lihat di Google Maps</a>
+            {% else %}
+                <p class="text-gray-600 italic">Koordinat GPS tidak tersedia.</p>
+            {% endif %}
+        </div>
+
+        {% if pengaduan.url_bukti_media %}
+            <div class="mb-6 border-t pt-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Bukti Media:</h3>
+                {% set file_extension = pengaduan.url_bukti_media.split('.')[-1]|lower %}
+                
+                <div class="mt-2 mb-4 bg-gray-100 p-2 rounded-lg flex justify-center items-center overflow-hidden" style="max-height: 400px;">
+                    {% if file_extension in ['jpg', 'png', 'jpeg', 'gif'] %}
+                        <img src="{{ url_for('uploaded_file', filename=pengaduan.url_bukti_media) }}" alt="Bukti Pengaduan" class="max-w-full h-auto object-contain rounded-lg">
+                    {% elif file_extension in ['mp4', 'avi', 'mov'] %}
+                        <video controls class="max-w-full h-auto object-contain rounded-lg">
+                            <source src="{{ url_for('uploaded_file', filename=pengaduan.url_bukti_media) }}" type="video/{{ file_extension }}">
+                            Browser Anda tidak mendukung tag video.
+                        </video>
+                    {% else %}
+                        <p class="text-gray-600 italic text-center">Tipe file bukti tidak didukung untuk pratinjau langsung.</p>
+                    {% endif %}
+                </div>
+                
+                <a href="{{ url_for('uploaded_file', filename=pengaduan.url_bukti_media) }}" target="_blank" class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Unduh Bukti</a>
+            </div>
+        {% else %}
+            <div class="mb-6 border-t pt-4">
+                <p class="text-gray-600 italic">Tidak ada bukti media yang dilampirkan.</p>
+            </div>
+        {% endif %}
+
+        <div class="mb-6 border-t pt-4">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Status Pengaduan:</h3>
+            <span class="px-4 py-2 rounded-full text-sm font-semibold 
+                {% if pengaduan.status == 'Selesai' %} bg-green-200 text-green-800
+                {% elif pengaduan.status == 'Diproses' %} bg-blue-200 text-blue-800
+                {% elif pengaduan.status == 'Ditolak' %} bg-red-200 text-red-800
+                {% else %} bg-gray-200 text-gray-800 {% endif %}">
+                {{ pengaduan.status }}
+            </span>
+            {% if pengaduan.respon_admin %}
+                <h3 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Respon Admin:</h3>
+                <p class="bg-gray-50 p-3 rounded-md text-gray-800 leading-relaxed">{{ pengaduan.respon_admin }}</p>
+            {% endif %}
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('daftar_pengaduan') }}" class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Kembali ke Daftar Pengaduan</a>
+        </div>
+    </div>
+{% endblock %}

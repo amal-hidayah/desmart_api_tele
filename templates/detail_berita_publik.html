@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block title %}{{ title }} - Aplikasi Desa{% endblock %}
+
+{% block content %}
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">{{ berita.judul }}</h2>
+        <p class="text-sm text-gray-600 mb-4">
+            Oleh: <span class="font-semibold">{{ berita.penulis }}</span> - {{ berita.tanggal_publikasi.strftime('%d %B %Y, %H:%M') }}
+        </p>
+
+        {% if berita.url_gambar_utama %}
+            <div class="mb-6">
+                <img src="{{ url_for('uploaded_file', filename=berita.url_gambar_utama) }}" alt="{{ berita.judul }}" class="w-full h-auto object-cover rounded-lg shadow-md">
+            </div>
+        {% endif %}
+
+        <div class="mb-6">
+            <p class="text-gray-800 leading-relaxed whitespace-pre-wrap">{{ berita.isi_berita }}</p>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('daftar_berita_publik') }}" class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Kembali ke Daftar Berita</a>
+        </div>
+    </div>
+{% endblock %}

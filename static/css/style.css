@@ -1,0 +1,19 @@
+/*
+   File ini sekarang hanya berisi CSS kustom yang tidak dapat ditangani oleh Tailwind
+   atau untuk penyesuaian global seperti import font.
+   Sebagian besar styling sudah dipindahkan ke kelas utilitas Tailwind di HTML.
+*/
+
+/* Import font Inter secara global */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Anda bisa menambahkan styling kustom tambahan di sini jika diperlukan.
+   Misalnya, efek hover atau animasi yang lebih kompleks yang tidak disediakan langsung oleh Tailwind. */
+
+/* Contoh: Styling untuk fokus input jika tidak ditangani sepenuhnya oleh Tailwind (biasanya sudah) */
+/* input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+} */
+

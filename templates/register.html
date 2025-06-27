@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+{% block title %}Registrasi - Aplikasi Desa{% endblock %}
+
+{% block content %}
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Registrasi Akun Baru</h2>
+    <form method="POST" action="" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+        {{ form.hidden_tag() }} {# Ini penting untuk CSRF protection #}
+        <div class="mb-4">
+            {{ form.username.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.username(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500") }}
+            {% for error in form.username.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div class="mb-4">
+            {{ form.email.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.email(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500") }}
+            {% for error in form.email.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div class="mb-4">
+            {{ form.password.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.password(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500") }}
+            {% for error in form.password.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div class="mb-6">
+            {{ form.konfirmasi_password.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.konfirmasi_password(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500") }}
+            {% for error in form.konfirmasi_password.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div class="mb-6">
+            {{ form.role.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.role(class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline") }}
+        </div>
+        <div class="flex items-center justify-between">
+            {{ form.submit(class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors duration-200 w-full") }}
+        </div>
+    </form>
+    <p class="text-center text-gray-600 mt-6 text-sm">Sudah punya akun? <a href="{{ url_for('login') }}" class="text-blue-500 hover:text-blue-700 font-bold">Masuk di sini</a></p>
+{% endblock %}

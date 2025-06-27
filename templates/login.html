@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+{% block title %}Login - Aplikasi Desa{% endblock %}
+
+{% block content %}
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Masuk ke Akun Anda</h2>
+    <form method="POST" action="" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+        {{ form.hidden_tag() }}
+        <div class="mb-4">
+            {{ form.email.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.email(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500") }}
+            {% for error in form.email.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div class="mb-6">
+            {{ form.password.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.password(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500") }}
+            {% for error in form.password.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div class="flex items-center justify-between">
+            {{ form.submit(class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors duration-200 w-full") }}
+        </div>
+    </form>
+    <p class="text-center text-gray-600 mt-6 text-sm">Belum punya akun? <a href="{{ url_for('register') }}" class="text-green-500 hover:text-green-700 font-bold">Daftar Sekarang</a></p>
+{% endblock %}

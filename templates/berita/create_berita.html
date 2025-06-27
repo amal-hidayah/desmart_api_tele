@@ -1,0 +1,76 @@
+{% extends 'layout.html' %}
+{% block title %}{{ title }} - Aplikasi Desa{% endblock %}
+
+{% block content %}
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">{{ title }}</h2>
+    <form method="POST" action="" enctype="multipart/form-data" class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        {{ form.hidden_tag() }}
+        <div class="mb-4">
+            {{ form.judul.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.judul(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500", placeholder="Judul Berita atau Pengumuman") }}
+            {% for error in form.judul.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div class="mb-6">
+            {{ form.isi_berita.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.isi_berita(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500 h-48 resize-y", placeholder="Tulis isi berita lengkap di sini...") }}
+            {% for error in form.isi_berita.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div class="mb-6">
+            {{ form.gambar_utama.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.gambar_utama(class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none") }}
+            <p class="mt-1 text-sm text-gray-500" id="file_help_text">Hanya gambar (JPG, PNG, JPEG, GIF).</p>
+            {% for error in form.gambar_utama.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+            <div id="gambar_utama_preview_container" class="mt-4 flex justify-center items-center h-48 bg-gray-200 rounded-lg overflow-hidden hidden">
+                <img id="gambar_utama_preview" src="#" alt="Pratinjau Gambar Utama" class="hidden max-h-full max-w-full object-contain">
+                <p id="no_gambar_preview_text" class="text-gray-500 hidden">Tidak ada pratinjau</p>
+            </div>
+        </div>
+        <div class="flex items-center justify-between">
+            {{ form.submit(class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors duration-200 w-full") }}
+        </div>
+    </form>
+    <div class="mt-8 text-center">
+        <a href="{{ url_for('kelola_berita') }}" class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Kembali ke Kelola Berita</a>
+    </div>
+
+    <script>
+        // JavaScript untuk preview gambar utama berita
+        document.getElementById('gambar_utama').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const previewContainer = document.getElementById('gambar_utama_preview_container');
+            const imagePreview = document.getElementById('gambar_utama_preview');
+            const noPreviewText = document.getElementById('no_gambar_preview_text');
+
+            previewContainer.classList.add('hidden');
+            imagePreview.classList.add('hidden');
+            noPreviewText.classList.add('hidden');
+            imagePreview.src = '#';
+
+            if (file) {
+                const fileType = file.type;
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    previewContainer.classList.remove('hidden');
+                    if (fileType.startsWith('image/')) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.classList.remove('hidden');
+                    } else {
+                        noPreviewText.classList.remove('hidden');
+                        noPreviewText.textContent = 'Tipe file tidak didukung untuk pratinjau.';
+                    }
+                };
+                reader.readAsDataURL(file);
+            } else {
+                noPreviewText.classList.remove('hidden');
+                noPreviewText.textContent = 'Tidak ada pratinjau';
+            }
+        });
+    </script>
+{% endblock %}

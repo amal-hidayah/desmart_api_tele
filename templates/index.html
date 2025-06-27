@@ -1,0 +1,154 @@
+{% extends 'layout.html' %}
+
+{% block title %}Beranda - Aplikasi Desa{% endblock %} {# Ini akan diubah oleh block title di layout #}
+
+{% block content %}
+    <section class="relative bg-gradient-to-r from-green-700 to-green-900 text-white py-20 px-8 rounded-2xl shadow-xl mb-12 overflow-hidden">
+        <div class="absolute inset-0 bg-pattern opacity-10"></div>
+        <div class="relative z-10 max-w-4xl mx-auto text-center">
+            <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-down">
+                Membangun <span class="text-yellow-300">Desa</span> Lebih Baik
+            </h1>
+            <p class="text-xl md:text-2xl font-light mb-8 animate-fade-in-up">
+                Platform terpadu untuk pengaduan, informasi transparan, dan partisipasi aktif masyarakat
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up-delay">
+                <a href="{{ url_for('buat_pengaduan') }}" class="bg-yellow-400 hover:bg-yellow-500 text-green-900 font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Ajukan Pengaduan
+                </a>
+                <a href="{{ url_for('daftar_berita_publik') }}" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center border border-white border-opacity-30">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-3m-2 4l3 3m0 0l3-3m-3 3V4"></path></svg>
+                    Lihat Berita
+                </a>
+                <a href="{{ url_for('cek_apbdes') }}" class="bg-blue-400 hover:bg-blue-500 text-blue-900 font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10h2m-2 0h2m-2 0V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2m3 0h.01M17 17V7m0 10a2 2 0 01-2 2h-2a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    Cek APBDes
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 px-4 animate-on-scroll opacity-0 transform translate-y-10">
+        <h2 class="text-4xl font-bold text-center text-gray-800 mb-10">Berita & Pengumuman Terbaru</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% if berita_terbaru %}
+                {% for berita_item in berita_terbaru %}
+                    <div class="bg-white rounded-xl p-6 shadow-xl border border-gray-100 flex flex-col transform hover:scale-102 transition-transform duration-300">
+                        {% if berita_item.url_gambar_utama %}
+                            <div class="w-full h-48 mb-4 rounded-lg overflow-hidden">
+                                <img src="{{ url_for('uploaded_file', filename=berita_item.url_gambar_utama) }}" alt="{{ berita_item.judul }}" class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300">
+                            </div>
+                        {% else %}
+                            <div class="w-full h-48 bg-gray-200 rounded-lg mb-4 flex items-center justify-center text-gray-500 text-lg font-medium">
+                                [Gambar Tidak Tersedia]
+                            </div>
+                        {% endif %}
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2 leading-tight">{{ berita_item.judul }}</h3>
+                        <p class="text-sm text-gray-600 mb-3">Oleh: <span class="font-semibold">{{ berita_item.penulis }}</span> - {{ berita_item.tanggal_publikasi.strftime('%d %B %Y') }}</p>
+                        <p class="text-gray-700 text-base flex-grow mb-4">{{ berita_item.isi_berita[:120] }}{% if berita_item.isi_berita|length > 120 %}...{% endif %}</p>
+                        <a href="{{ url_for('detail_berita_publik', berita_id=berita_item.id) }}" class="mt-auto inline-block text-blue-600 hover:text-blue-800 font-semibold transition-colors flex items-center">
+                            Baca Selengkapnya
+                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md border border-gray-200">Belum ada berita terbaru yang diterbitkan.</p>
+            {% endif %}
+        </div>
+        <div class="text-center mt-12">
+            <a href="{{ url_for('daftar_berita_publik') }}" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-xl transition-all duration-300 transform hover:scale-105">
+                Lihat Semua Berita & Pengumuman
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            </a>
+        </div>
+    </section>
+
+    <style>
+        /* Keyframe for fade-in-down animation */
+        @keyframes fade-in-down {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Keyframe for fade-in-up animation */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Animation for elements appearing on scroll */
+        @keyframes slide-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Apply animations */
+        .animate-fade-in-down {
+            animation: fade-in-down 1s ease-out forwards;
+        }
+
+        .animate-fade-in-up {
+            animation: fade-in-up 1s ease-out forwards;
+        }
+
+        .animate-fade-in-up-delay {
+            animation: fade-in-up 1s ease-out 0.5s forwards;
+            opacity: 0; /* Start hidden */
+        }
+
+        /* Class to apply for scroll animation target */
+        .animate-on-scroll {
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const scrollAnimatedElements = document.querySelectorAll('.animate-on-scroll');
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target); // Stop observing once animated
+                    }
+                });
+            }, {
+                root: null, // viewport as root
+                rootMargin: '0px',
+                threshold: 0.1 // Trigger when 10% of the element is visible
+            });
+
+            scrollAnimatedElements.forEach(element => {
+                observer.observe(element);
+            });
+        });
+    </script>
+{% endblock %}

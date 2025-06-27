@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+{% block title %}Update Pengaduan #{{ pengaduan.id }} - Aplikasi Desa{% endblock %}
+
+{% block content %}
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Update Pengaduan #{{ pengaduan.id }}</h2>
+
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">{{ pengaduan.judul }}</h3>
+        <p class="text-gray-700 mb-4">{{ pengaduan.deskripsi }}</p>
+        <p class="text-sm text-gray-600 mb-6">Diajukan oleh: <span class="font-semibold">{{ pengaduan.pembuat.username }}</span> pada {{ pengaduan.tanggal_pengaduan.strftime('%d %B %Y, %H:%M') }}</p>
+
+        <form method="POST" action="{{ url_for('update_pengaduan_status', pengaduan_id=pengaduan.id) }}">
+            <div class="mb-4">
+                <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Ubah Status:</label>
+                <select name="status" id="status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500">
+                    <option value="Diterima" {% if pengaduan.status == 'Diterima' %}selected{% endif %}>Diterima</option>
+                    <option value="Diproses" {% if pengaduan.status == 'Diproses' %}selected{% endif %}>Diproses</option>
+                    <option value="Selesai" {% if pengaduan.status == 'Selesai' %}selected{% endif %}>Selesai</option>
+                    <option value="Ditolak" {% if pengaduan.status == 'Ditolak' %}selected{% endif %}>Ditolak</option>
+                </select>
+            </div>
+            <div class="mb-6">
+                <label for="respon_admin" class="block text-gray-700 text-sm font-bold mb-2">Respon Admin (Opsional):</label>
+                <textarea name="respon_admin" id="respon_admin" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500">{{ pengaduan.respon_admin if pengaduan.respon_admin else '' }}</textarea>
+            </div>
+            <div class="flex justify-between items-center">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors duration-200">Simpan Perubahan</button>
+                <a href="{{ url_for('detail_pengaduan', pengaduan_id=pengaduan.id) }}" class="text-gray-600 hover:text-gray-800">Batal</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-8 text-center">
+        <a href="{{ url_for('kelola_pengaduan') }}" class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Kembali ke Daftar Kelola Pengaduan</a>
+    </div>
+{% endblock %}

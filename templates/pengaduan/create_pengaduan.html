@@ -1,0 +1,140 @@
+{% extends 'layout.html' %}
+{% block title %}Buat Pengaduan Baru - Aplikasi Desa{% endblock %}
+
+{% block content %}
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Buat Pengaduan Baru</h2>
+    <!-- Penting: tambahkan enctype="multipart/form-data" untuk upload file -->
+    <form method="POST" action="" enctype="multipart/form-data" class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        {{ form.hidden_tag() }} {# CSRF protection #}
+        <div class="mb-4">
+            {{ form.judul.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.judul(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500", placeholder="Contoh: Jalan Rusak di RT 03") }}
+            {% for error in form.judul.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div class="mb-4">
+            {{ form.lokasi.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.lokasi(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500", placeholder="Contoh: Jalan Melati No. 5, RT 01 RW 02") }}
+            {% for error in form.lokasi.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+        
+        <!-- Field Tersembunyi untuk Latitude dan Longitude GPS -->
+        {{ form.latitude(type="hidden", id="latitude_field") }}
+        {{ form.longitude(type="hidden", id="longitude_field") }}
+        <button type="button" id="get_gps_button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors duration-200 mb-4 w-full">Dapatkan Lokasi GPS Otomatis</button>
+        <p id="gps_status" class="text-gray-600 text-sm mb-4 text-center"></p>
+
+        <div class="mb-6">
+            {{ form.deskripsi.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.deskripsi(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500 h-32 resize-y", placeholder="Jelaskan masalah secara rinci...") }}
+            {% for error in form.deskripsi.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <!-- Field untuk Upload Foto/Video -->
+        <div class="mb-6">
+            {{ form.bukti_media.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.bukti_media(class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none", id="bukti_media_input") }}
+            <p class="mt-1 text-sm text-gray-500" id="file_help_text">JPG, PNG, JPEG, GIF, MP4, AVI, MOV (MAX. 16MB).</p>
+            {% for error in form.bukti_media.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+            <!-- Area untuk preview media -->
+            <div id="media_preview_container" class="mt-4 flex justify-center items-center h-48 bg-gray-200 rounded-lg overflow-hidden hidden">
+                <img id="image_preview" src="#" alt="Pratinjau Gambar" class="hidden max-h-full max-w-full object-contain">
+                <video id="video_preview" controls class="hidden max-h-full max-w-full object-contain">
+                    Browser Anda tidak mendukung tag video.
+                </video>
+                <p id="no_preview_text" class="text-gray-500 hidden">Tidak ada pratinjau</p>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+            {{ form.submit(class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors duration-200 w-full") }}
+        </div>
+    </form>
+
+    <script>
+        // JavaScript untuk mendapatkan lokasi GPS
+        document.getElementById('get_gps_button').addEventListener('click', function() {
+            const statusText = document.getElementById('gps_status');
+            const latitudeField = document.getElementById('latitude_field');
+            const longitudeField = document.getElementById('longitude_field');
+
+            if (navigator.geolocation) {
+                statusText.textContent = 'Mencari lokasi Anda...';
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        
+                        latitudeField.value = latitude;
+                        longitudeField.value = longitude;
+                        statusText.textContent = `Lokasi GPS berhasil didapatkan: Latitude ${latitude.toFixed(6)}, Longitude ${longitude.toFixed(6)}`;
+                        statusText.classList.remove('text-red-500');
+                        statusText.classList.add('text-green-500');
+                    },
+                    function(error) {
+                        statusText.textContent = 'Gagal mendapatkan lokasi GPS. Pastikan izin lokasi diberikan. Error: ' + error.message;
+                        statusText.classList.remove('text-green-500');
+                        statusText.classList.add('text-red-500');
+                        latitudeField.value = '';
+                        longitudeField.value = '';
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            } else {
+                statusText.textContent = 'Browser Anda tidak mendukung Geolocation API.';
+                statusText.classList.remove('text-green-500');
+                statusText.classList.add('text-red-500');
+            }
+        });
+
+        // JavaScript untuk preview gambar/video
+        document.getElementById('bukti_media_input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const previewContainer = document.getElementById('media_preview_container');
+            const imagePreview = document.getElementById('image_preview');
+            const videoPreview = document.getElementById('video_preview');
+            const noPreviewText = document.getElementById('no_preview_text');
+
+            // Sembunyikan semua elemen preview dan teks "no preview"
+            previewContainer.classList.add('hidden');
+            imagePreview.classList.add('hidden');
+            videoPreview.classList.add('hidden');
+            noPreviewText.classList.add('hidden');
+
+            imagePreview.src = '#'; // Reset src
+            videoPreview.src = '#'; // Reset src
+
+            if (file) {
+                const fileType = file.type;
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    previewContainer.classList.remove('hidden'); // Tampilkan container
+
+                    if (fileType.startsWith('image/')) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.classList.remove('hidden');
+                    } else if (fileType.startsWith('video/')) {
+                        videoPreview.src = e.target.result;
+                        videoPreview.classList.remove('hidden');
+                        videoPreview.load(); // Memuat video
+                    } else {
+                        noPreviewText.classList.remove('hidden');
+                        statusText.textContent = 'Tipe file tidak didukung untuk pratinjau.';
+                    }
+                };
+                reader.readAsDataURL(file); // Membaca file sebagai URL data
+            } else {
+                noPreviewText.classList.remove('hidden'); // Tampilkan pesan jika tidak ada file
+                noPreviewText.textContent = 'Tidak ada pratinjau';
+            }
+        });
+    </script>
+{% endblock %}

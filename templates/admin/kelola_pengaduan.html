@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+{% block title %}Kelola Pengaduan - Aplikasi Desa{% endblock %}
+
+{% block content %}
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Kelola Pengaduan</h2>
+
+    {% if pengaduans %}
+        <div class="overflow-x-auto rounded-lg shadow-md">
+            <table class="min-w-full bg-white border border-gray-200">
+                <thead>
+                    <tr class="bg-gray-100 border-b border-gray-200">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelapor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for pengaduan in pengaduans %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ pengaduan.id }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ pengaduan.judul }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ pengaduan.pembuat.username }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ pengaduan.lokasi }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ pengaduan.tanggal_pengaduan.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {% if pengaduan.status == 'Selesai' %} bg-green-100 text-green-800
+                                    {% elif pengaduan.status == 'Diproses' %} bg-blue-100 text-blue-800
+                                    {% elif pengaduan.status == 'Ditolak' %} bg-red-100 text-red-800
+                                    {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                                    {{ pengaduan.status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{{ url_for('detail_pengaduan', pengaduan_id=pengaduan.id) }}" class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
+                                <a href="{{ url_for('update_pengaduan_status', pengaduan_id=pengaduan.id) }}" class="text-indigo-600 hover:text-indigo-900">Kelola</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-center text-gray-600 text-lg">Tidak ada pengaduan untuk dikelola.</p>
+    {% endif %}
+    <div class="mt-8 text-center">
+        <a href="{{ url_for('admin_dashboard') }}" class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Kembali ke Dashboard Admin</a>
+    </div>
+{% endblock %}
