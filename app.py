@@ -4,7 +4,9 @@ from flask import Flask, render_template, url_for, flash, redirect, request, sen
 from config import Config
 from datetime import datetime
 from extensions import db, login_manager
-from forms import RegistrasiForm, LoginForm, PengaduanForm, BeritaForm
+# Hapus APBDesForm dari forms import
+from forms import RegistrasiForm, LoginForm, PengaduanForm, BeritaForm, UserEditForm
+# Hapus APBDes dari models import
 from models import User, Pengaduan, Berita
 from flask_login import login_user, logout_user, login_required, current_user
 import os
@@ -13,8 +15,6 @@ from functools import wraps
 
 app = Flask(__name__)
 app.config.from_object(Config)
-
-# app.config['UPLOAD_FOLDER'] dan ALLOWED_EXTENSIONS sudah di Config
 
 db.init_app(app)
 login_manager.init_app(app)
@@ -281,11 +281,50 @@ def detail_berita_publik(berita_id):
     berita = Berita.query.get_or_404(berita_id)
     return render_template('detail_berita_publik.html', title=berita.judul, berita=berita)
 
-# --- Rute APBDes (Placeholder) ---
-@app.route('/apbdes')
-def cek_apbdes():
-    flash('Fitur Transparansi APBDes masih dalam pengembangan. Mohon bersabar!', 'info')
-    return render_template('apbdes_placeholder.html', title='APBDes')
+# --- Rute Admin Pengguna ---
+@app.route('/admin/users')
+@admin_required
+def kelola_users():
+    users = User.query.order_by(User.tanggal_daftar.desc()).all()
+    return render_template('admin/users/list_users.html', title='Kelola Pengguna', users=users)
+
+@app.route('/admin/users/<int:user_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def edit_user(user_id):
+    user = User.query.get_or_404(user_id)
+    form = UserEditForm(original_username=user.username, original_email=user.email, obj=user)
+
+    if form.validate_on_submit():
+        user.username = form.username.data
+        user.email = form.email.data
+        user.role = form.role.data
+        if form.password.data:
+            user.set_password(form.password.data)
+        
+        db.session.commit()
+        flash('Data pengguna berhasil diperbarui!', 'success')
+        return redirect(url_for('kelola_users'))
+    
+    elif request.method == 'GET':
+        form.username.data = user.username
+        form.email.data = user.email
+        form.role.data = user.role
+
+    return render_template('admin/users/edit_user.html', title='Edit Pengguna', form=form, user=user)
+
+@app.route('/admin/users/<int:user_id>/delete', methods=['POST'])
+@admin_required
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    if user.id == current_user.id:
+        flash('Anda tidak dapat menghapus akun Anda sendiri.', 'danger')
+        return redirect(url_for('kelola_users'))
+    
+    db.session.delete(user)
+    db.session.commit()
+    flash(f'Pengguna {user.username} berhasil dihapus secara permanen.', 'success')
+    return redirect(url_for('kelola_users'))
 
 
 @app.route('/uploads/<filename>')

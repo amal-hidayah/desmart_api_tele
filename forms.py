@@ -42,10 +42,37 @@ class PengaduanForm(FlaskForm):
     
     submit = SubmitField('Kirim Pengaduan')
 
-# --- Form Baru untuk Berita ---
 class BeritaForm(FlaskForm):
     judul = StringField('Judul Berita', validators=[DataRequired(), Length(min=5, max=200)])
     isi_berita = TextAreaField('Isi Berita Lengkap', validators=[DataRequired(), Length(min=50)])
-    # Untuk gambar utama berita, bisa opsional
     gambar_utama = FileField('Gambar Utama (Opsional)', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Hanya gambar (JPG, PNG, JPEG, GIF)!')])
     submit = SubmitField('Simpan Berita')
+
+# Pastikan UserEditForm ada di sini
+class UserEditForm(FlaskForm):
+    username = StringField('Nama Pengguna', validators=[DataRequired(), Length(min=2, max=20)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    role = SelectField('Role Pengguna', choices=[('warga', 'Warga'), ('admin', 'Admin')], validators=[DataRequired()])
+    password = PasswordField('Kata Sandi Baru (kosongkan jika tidak ingin mengubah)')
+    konfirmasi_password = PasswordField('Konfirmasi Kata Sandi Baru', validators=[EqualTo('password', message='Kata sandi tidak cocok.')])
+    submit = SubmitField('Update Pengguna')
+
+    original_username = None
+    original_email = None
+
+    def __init__(self, original_username=None, original_email=None, *args, **kwargs):
+        super(UserEditForm, self).__init__(*args, **kwargs)
+        self.original_username = original_username
+        self.original_email = original_email
+
+    def validate_username(self, username):
+        if username.data != self.original_username:
+            user = User.query.filter_by(username=username.data).first()
+            if user:
+                raise ValidationError('Nama pengguna ini sudah terdaftar. Mohon pilih yang lain.')
+
+    def validate_email(self, email):
+        if email.data != self.original_email:
+            user = User.query.filter_by(email=email.data).first()
+            if user:
+                raise ValidationError('Email ini sudah terdaftar. Mohon gunakan email lain.')

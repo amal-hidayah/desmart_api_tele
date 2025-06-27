@@ -1,16 +1,17 @@
 {% extends 'layout.html' %}
 
-{% block title %}Beranda - Aplikasi Desa{% endblock %} {# Ini akan diubah oleh block title di layout #}
+{% block title %}Beranda - DeSmart{% endblock %}
 
 {% block content %}
+    <!-- Hero Section -->
     <section class="relative bg-gradient-to-r from-green-700 to-green-900 text-white py-20 px-8 rounded-2xl shadow-xl mb-12 overflow-hidden">
         <div class="absolute inset-0 bg-pattern opacity-10"></div>
         <div class="relative z-10 max-w-4xl mx-auto text-center">
             <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-down">
-                Membangun <span class="text-yellow-300">Desa</span> Lebih Baik
+                Membangun <span class="text-yellow-300">Desa</span> Lebih Baik Bersama
             </h1>
             <p class="text-xl md:text-2xl font-light mb-8 animate-fade-in-up">
-                Platform terpadu untuk pengaduan, informasi transparan, dan partisipasi aktif masyarakat
+                Platform terpadu untuk pengaduan, informasi transparan, dan partisipasi aktif masyarakat **DeSmart**.
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up-delay">
                 <a href="{{ url_for('buat_pengaduan') }}" class="bg-yellow-400 hover:bg-yellow-500 text-green-900 font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
@@ -21,14 +22,11 @@
                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-3m-2 4l3 3m0 0l3-3m-3 3V4"></path></svg>
                     Lihat Berita
                 </a>
-                <a href="{{ url_for('cek_apbdes') }}" class="bg-blue-400 hover:bg-blue-500 text-blue-900 font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10h2m-2 0h2m-2 0V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2m3 0h.01M17 17V7m0 10a2 2 0 01-2 2h-2a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                    Cek APBDes
-                </a>
             </div>
         </div>
     </section>
 
+    <!-- Berita & Pengumuman Terbaru Section -->
     <section class="py-12 px-4 animate-on-scroll opacity-0 transform translate-y-10">
         <h2 class="text-4xl font-bold text-center text-gray-800 mb-10">Berita & Pengumuman Terbaru</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
