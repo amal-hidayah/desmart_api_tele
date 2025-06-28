@@ -1,8 +1,8 @@
 # forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, FloatField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, NumberRange
 from flask_wtf.file import FileField, FileAllowed
 from models import User # Import model User untuk validasi
 
@@ -76,3 +76,14 @@ class UserEditForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user:
                 raise ValidationError('Email ini sudah terdaftar. Mohon gunakan email lain.')
+
+# START - Penambahan Form APBDes
+class APBDesForm(FlaskForm):
+    tahun = IntegerField('Tahun Anggaran', validators=[DataRequired(), NumberRange(min=2000, max=2100, message='Tahun tidak valid.')])
+    judul = StringField('Judul Dokumen APBDes', validators=[DataRequired(), Length(min=5, max=200)])
+    deskripsi = TextAreaField('Deskripsi Singkat / Ringkasan', validators=[Length(max=500)], render_kw={"rows": 5})
+    file_apbdes = FileField('Unggah Dokumen APBDes (PDF/Gambar, Opsional)', validators=[
+        FileAllowed(['pdf', 'jpg', 'png', 'jpeg'], 'Hanya file PDF atau gambar (JPG, PNG, JPEG)!')
+    ])
+    submit = SubmitField('Simpan Data APBDes')
+# END - Penambahan Form APBDes

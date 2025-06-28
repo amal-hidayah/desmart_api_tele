@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}DeSmart{% endblock %}</title>
-    <!-- Link Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Link Font Awesome CDN untuk ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* Import font Inter dari Google Fonts */
@@ -16,130 +14,111 @@
             @apply bg-gray-100 text-gray-800;
         }
 
-        /* Animasi Background Gradient untuk Header */
-        @keyframes headerGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .animated-header {
-            background-size: 200% 200%;
-            animation: headerGradient 20s ease infinite;
-        }
-
-        /* Styling dasar untuk link navigasi */
-        .nav-item {
-            @apply relative text-white text-lg font-medium px-4 py-2 rounded-md transition-all duration-300 transform no-underline;
-        }
-        .nav-item::before {
-            content: '';
-            @apply absolute inset-0 bg-white bg-opacity-10 rounded-md transform scale-x-0 origin-left transition-transform duration-300;
-            z-index: -1;
-        }
-        .nav-item:hover::before {
-            @apply scale-x-100;
-        }
-        .nav-item:hover {
-            @apply text-yellow-200; /* Warna teks berubah saat hover */
-            transform: translateY(-1px); /* Sedikit bergerak ke atas */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Tambah bayangan halus saat hover */
+        /* CSS untuk styling tambahan menu mobile jika diperlukan */
+        /* Ini akan ditambahkan oleh JS saat menu dibuka di mobile */
+        .nav-menu-mobile-open {
+            /* Styles for when the mobile menu is open */
+            position: absolute;
+            top: 100%; /* Position right below the header */
+            left: 0;
+            width: 100%;
+            background-color: #166534; /* dark green, same as header */
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 40; /* Ensure it's above main content but below sticky header */
         }
 
-        /* Styling untuk tombol di navbar */
-        .nav-btn {
-            @apply px-5 py-2 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-md flex items-center justify-center no-underline;
+        .nav-menu-mobile-open a,
+        .nav-menu-mobile-open span {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 0.5rem; /* Space between items */
+            padding: 0.5rem 0.75rem; /* Padding for click area */
         }
-        .nav-btn:hover {
-            @apply shadow-lg brightness-110; /* Efek brightness saat hover */
-        }
-
-        /* Styling khusus untuk tombol Logout */
-        .logout-btn {
-            @apply bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white nav-btn;
-        }
-        /* Styling khusus untuk tombol Login (agar seragam) */
-        .login-btn {
-            @apply bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white nav-btn;
-        }
-        /* Styling khusus dan lebih menarik untuk tombol Admin Dashboard */
-        /* Admin Dashboard menggunakan nav-item, jadi ini tidak lagi digunakan secara langsung */
-        /* .admin-dash-btn {
-            @apply bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 
-                   text-white nav-btn shadow-lg hover:shadow-xl transform hover:scale-105;
-        } */
-
-
-        /* Styling tambahan untuk logo */
-        .logo-text {
-            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+        .nav-menu-mobile-open span {
+             border-left: none; /* Remove border-left on mobile for user info */
+             padding-left: 0;
         }
 
-        /* Pastikan Font Awesome ikon di dalam tombol tidak menampilkan ikon rusak */
-        .nav-btn .fas {
-            color: white !important;
-        }
-        
-        /* Hapus garis bawah default untuk semua link di navbar */
-        nav a {
-            text-decoration: none;
+        /* Ensure .md: classes override mobile styles on larger screens */
+        @media (min-width: 768px) {
+            .nav-menu-mobile-open {
+                position: static;
+                background-color: transparent;
+                box-shadow: none;
+                flex-direction: row;
+                align-items: center;
+                padding: 0;
+            }
+            .nav-menu-mobile-open a,
+            .nav-menu-mobile-open span {
+                width: auto;
+                text-align: center;
+                margin-bottom: 0;
+                padding: 0.5rem 0.75rem;
+            }
+            /* Re-apply border for desktop user info */
+             .nav-menu-mobile-open span.md\:ml-4 { /* Target the span with desktop margin */
+                 border-left: 1px solid rgba(255, 255, 255, 0.4);
+                 padding-left: 1rem;
+             }
         }
     </style>
-    <!-- Link CSS kustom Anda (jika ada) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="min-h-screen flex flex-col">
-    <!-- Header dengan gradient, shadow yang elegan, dan posisi sticky -->
-    <header class="bg-gradient-to-r from-green-600 to-green-800 text-white p-4 shadow-xl sticky top-0 z-50 animated-header">
-        <nav class="container mx-auto flex justify-between items-center">
-            <!-- Nama Aplikasi/Logo -->
-            <a href="/" class="text-3xl font-extrabold tracking-wide hover:text-yellow-200 transition-colors duration-300 transform hover:scale-105 flex items-center group no-underline">
-                <i class="fas fa-lightbulb text-yellow-300 mr-2 group-hover:rotate-12 transition-transform duration-300"></i>
-                <span class="logo-text">De<span class="text-yellow-300">Smart</span></span>
+    <header class="bg-green-700 text-white p-4 shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto flex flex-col md:flex-row justify-between items-center relative">
+            <a href="/" class="text-3xl font-bold tracking-wide hover:text-yellow-200 transition-colors duration-200 flex items-center mb-4 md:mb-0">
+                <i class="fas fa-lightbulb text-yellow-300 mr-2"></i>
+                De<span class="text-yellow-300">Smart</span>
             </a>
             
-            <div class="flex items-center space-x-4 md:space-x-6">
+            <button id="menu-button" class="md:hidden text-white focus:outline-none absolute top-4 right-4">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+
+            <div id="nav-menu" class="hidden md:flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 flex-wrap justify-center md:justify-end w-full md:w-auto">
                 
                 {% if current_user.is_authenticated %}
-                    {% if current_user.role == 'admin' %} {# Navigasi Khusus Admin #}
-                        <a href="/" class="nav-item">Beranda</a>
-                        <a href="{{ url_for('admin_dashboard') }}" class="nav-item">
-                            Admin Dashboard
-                        </a>
-                    {% else %} {# Navigasi untuk Warga dan Pengguna Umum #}
-                        <a href="/" class="nav-item">Beranda</a>
-                        <a href="{{ url_for('daftar_berita_publik') }}" class="nav-item">Berita Desa</a>
-                        <a href="{{ url_for('buat_pengaduan') }}" class="nav-item">Buat Pengaduan</a>
-                        <a href="{{ url_for('daftar_pengaduan') }}" class="nav-item">Daftar Pengaduan</a>
+                    {% if current_user.role == 'admin' %}
+                        <a href="/" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Beranda</a> {# MODIFIED: Back to text link #}
+                        <a href="{{ url_for('admin_dashboard') }}" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Admin Dashboard</a> {# MODIFIED: Back to text link, removed red bg and icon #}
+                    {% else %}
+                        <a href="/" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Beranda</a>
+                        <a href="{{ url_for('daftar_berita_publik') }}" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Berita Desa</a>
+                        <a href="{{ url_for('buat_pengaduan') }}" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Buat Pengaduan</a>
+                        <a href="{{ url_for('daftar_pengaduan') }}" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Daftar Pengaduan</a>
+                        <a href="{{ url_for('daftar_apbdes_publik') }}" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Cek APBDes</a>
                     {% endif %}
                     
-                    <span class="text-white text-base ml-4 pl-4 border-l border-white border-opacity-40 py-1 flex items-center">
-                        <i class="fas fa-user-circle mr-2 text-xl"></i>
-                        Halo, <span class="font-bold ml-1">{{ current_user.username }}</span> (<span class="capitalize ml-1">{{ current_user.role }}</span>)
+                    <span class="text-white text-base ml-2 md:ml-4 pl-2 md:pl-4 border-l border-white border-opacity-40 py-1 flex items-center w-full md:w-auto justify-center md:justify-start">
+                        <i class="fas fa-user-circle mr-1"></i>
+                        Halo, <span class="font-bold">{{ current_user.username }}</span>(<span class="capitalize">{{ current_user.role }}</span>)
                     </span>
-                    <a href="{{ url_for('logout') }}" class="logout-btn">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    <a href="{{ url_for('logout') }}" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md flex items-center w-full md:w-auto justify-center">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
                     </a>
                 {% else %}
-                    {# Tampilkan link registrasi dan login jika belum login #}
-                    <a href="/" class="nav-item">Beranda</a>
-                    <a href="{{ url_for('daftar_berita_publik') }}" class="nav-item">Berita Desa</a>
-                    <a href="{{ url_for('register') }}" class="nav-item">Registrasi</a>
-                    <a href="{{ url_for('login') }}" class="login-btn">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    <a href="/" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Beranda</a>
+                    <a href="{{ url_for('daftar_berita_publik') }}" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Berita Desa</a>
+                    <a href="{{ url_for('register') }}" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Registrasi</a>
+                    <a href="{{ url_for('daftar_apbdes_publik') }}" class="text-white hover:bg-green-600 px-3 py-2 rounded-md transition-colors w-full md:w-auto text-center">Cek APBDes</a>
+                    <a href="{{ url_for('login') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md flex items-center w-full md:w-auto justify-center">
+                        <i class="fas fa-sign-in-alt mr-1"></i>Login
                     </a>
                 {% endif %}
             </div>
         </nav>
     </header>
 
-    <!-- Konten utama halaman -->
     <main class="container mx-auto px-4 py-8 flex-grow">
-        <!-- Area untuk menampilkan Flash Messages (pesan notifikasi) -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="mb-6">
                     {% for category, message in messages %}
-                        <!-- Styling flash message berdasarkan kategori (success, danger, info) -->
                         <div class="p-4 rounded-md shadow-sm mb-3
                             {% if category == 'success' %} bg-green-100 text-green-800 border border-green-300
                             {% elif category == 'danger' %} bg-red-100 text-red-800 border border-red-300
@@ -157,12 +136,10 @@
         </div>
     </main>
 
-    <!-- Footer aplikasi -->
     <footer class="bg-gray-800 text-white p-4 text-center mt-auto shadow-inner">
         <p class="text-sm">&copy; 2025 DeSmart. Hak Cipta Dilindungi.</p>
     </footer>
 
-    <!-- Link ke file JavaScript kustom Anda -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

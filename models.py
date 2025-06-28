@@ -64,3 +64,19 @@ class Berita(db.Model):
     # Representasi string objek Berita
     def __repr__(self):
         return f"Berita('{self.judul}', '{self.tanggal_publikasi}')"
+
+# START - Penambahan Model APBDes
+class APBDes(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tahun = db.Column(db.Integer, nullable=False)
+    judul = db.Column(db.String(200), nullable=False) # Misal: "APBDes Tahun 2024"
+    deskripsi = db.Column(db.Text, nullable=True) # Ringkasan atau detail anggaran
+    # url_file_apbdes untuk menyimpan nama file PDF atau dokumen lainnya
+    url_file_apbdes = db.Column(db.String(255), nullable=True)
+    tanggal_unggah = db.Column(db.DateTime, default=datetime.utcnow)
+    pengunggah_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # Siapa yang mengunggah
+    pengunggah = db.relationship('User', backref='apbdes_uploads', lazy=True)
+
+    def __repr__(self):
+        return f"APBDes('{self.judul}', Tahun {self.tahun}', '{self.tanggal_unggah}')"
+# END - Penambahan Model APBDes

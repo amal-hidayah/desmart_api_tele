@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+
+{% block title %}Tambah Data APBDes - Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Tambah Data APBDes</h2>
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        {{ form.csrf_token }}
+
+        <div>
+            {{ form.tahun.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+            {{ form.tahun(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm", placeholder="Contoh: 2024") }}
+            {% if form.tahun.errors %}
+                <ul class="text-red-600 text-sm mt-1">
+                    {% for error in form.tahun.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            {{ form.judul.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+            {{ form.judul(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm", placeholder="Contoh: APBDes Induk Tahun 2024") }}
+            {% if form.judul.errors %}
+                <ul class="text-red-600 text-sm mt-1">
+                    {% for error in form.judul.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            {{ form.deskripsi.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+            {{ form.deskripsi(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm", rows="5", placeholder="Ringkasan atau detail anggaran...") }}
+            {% if form.deskripsi.errors %}
+                <ul class="text-red-600 text-sm mt-1">
+                    {% for error in form.deskripsi.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            {{ form.file_apbdes.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+            {{ form.file_apbdes(class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none") }}
+            <p class="mt-1 text-xs text-gray-500">File PDF atau gambar (JPG, PNG). Maks 16MB.</p>
+            {% if form.file_apbdes.errors %}
+                <ul class="text-red-600 text-sm mt-1">
+                    {% for error in form.file_apbdes.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            {{ form.submit(class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

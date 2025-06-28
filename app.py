@@ -1,17 +1,22 @@
-# app.py
-
 from flask import Flask, render_template, url_for, flash, redirect, request, send_from_directory, abort
 from config import Config
 from datetime import datetime
 from extensions import db, login_manager
-# Hapus APBDesForm dari forms import
-from forms import RegistrasiForm, LoginForm, PengaduanForm, BeritaForm, UserEditForm
-# Hapus APBDes dari models import
-from models import User, Pengaduan, Berita
+
+# Import forms yang dibutuhkan, pastikan APBDesForm sudah ada di forms.py Anda
+from forms import RegistrasiForm, LoginForm, PengaduanForm, BeritaForm, UserEditForm, APBDesForm
+
+# Import models yang dibutuhkan, pastikan APBDes sudah ada di models.py Anda
+from models import User, Pengaduan, Berita, APBDes 
+
 from flask_login import login_user, logout_user, login_required, current_user
 import os
 from werkzeug.utils import secure_filename
 from functools import wraps
+
+# START - Import Flask-Migrate
+from flask_migrate import Migrate
+# END - Import Flask-Migrate
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -21,19 +26,29 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
+# START - Inisialisasi Flask-Migrate
+migrate = Migrate(app, db)
+# END - Inisialisasi Flask-Migrate
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 def save_uploaded_file(file):
+    # Pastikan file itu ada dan memiliki nama, dan ekstensi diizinkan
     if file and file.filename != '' and allowed_file(file.filename):
         filename = secure_filename(file.filename)
+        # Buat folder uploads jika belum ada
         if not os.path.exists(app.config['UPLOAD_FOLDER']):
             os.makedirs(app.config['UPLOAD_FOLDER'])
         
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-        return filename
+        try:
+            file.save(file_path)
+            return filename
+        except Exception as e:
+            app.logger.error(f"Gagal menyimpan file {filename}: {e}")
+            return None # Kembalikan None jika penyimpanan gagal
     return None
 
 def allowed_file(filename):
@@ -131,22 +146,14 @@ def buat_pengaduan():
 @app.route('/pengaduan')
 @login_required
 def daftar_pengaduan():
-    if current_user.role == 'admin':
-        pengaduans = Pengaduan.query.order_by(Pengaduan.tanggal_pengaduan.desc()).all()
-    else:
-        pengaduans = Pengaduan.query.filter_by(user_id=current_user.id).order_by(Pengaduan.tanggal_pengaduan.desc()).all()
-    
+    pengaduans = Pengaduan.query.order_by(Pengaduan.tanggal_pengaduan.desc()).all()
     return render_template('pengaduan/list_pengaduan.html', title='Daftar Pengaduan', pengaduans=pengaduans)
+
 
 @app.route('/pengaduan/<int:pengaduan_id>')
 @login_required
 def detail_pengaduan(pengaduan_id):
     pengaduan = Pengaduan.query.get_or_404(pengaduan_id)
-
-    if current_user.role != 'admin' and pengaduan.user_id != current_user.id:
-        flash('Anda tidak memiliki izin untuk melihat pengaduan ini.', 'danger')
-        return redirect(url_for('daftar_pengaduan'))
-
     return render_template('pengaduan/detail_pengaduan.html', title=pengaduan.judul, pengaduan=pengaduan)
 
 # --- Rute Admin ---
@@ -159,13 +166,15 @@ def admin_dashboard():
     pengaduan_selesai = Pengaduan.query.filter_by(status='Selesai').count()
     
     latest_pengaduans = Pengaduan.query.order_by(Pengaduan.tanggal_pengaduan.desc()).limit(5).all()
+    latest_apbdes = APBDes.query.order_by(APBDes.tanggal_unggah.desc()).limit(3).all() # Ambil APBDes terbaru
 
     return render_template('admin/dashboard.html', title='Dashboard Admin',
-                           total_pengaduan=total_pengaduan,
-                           pengaduan_baru=pengaduan_baru,
-                           pengaduan_diproses=pengaduan_diproses,
-                           pengaduan_selesai=pengaduan_selesai,
-                           latest_pengaduans=latest_pengaduans)
+                            total_pengaduan=total_pengaduan,
+                            pengaduan_baru=pengaduan_baru,
+                            pengaduan_diproses=pengaduan_diproses,
+                            pengaduan_selesai=pengaduan_selesai,
+                            latest_pengaduans=latest_pengaduans,
+                            latest_apbdes=latest_apbdes) # Kirim data APBDes terbaru ke template
 
 @app.route('/admin/pengaduan')
 @admin_required
@@ -325,6 +334,98 @@ def delete_user(user_id):
     db.session.commit()
     flash(f'Pengguna {user.username} berhasil dihapus secara permanen.', 'success')
     return redirect(url_for('kelola_users'))
+
+# --- Rute APBDes (Admin) ---
+@app.route('/admin/apbdes/baru', methods=['GET', 'POST'])
+@admin_required
+def buat_apbdes():
+    form = APBDesForm()
+    if form.validate_on_submit():
+        file_filename = None
+        if form.file_apbdes.data:
+            file_filename = save_uploaded_file(form.file_apbdes.data)
+            if not file_filename:
+                flash('Gagal mengunggah file APBDes. Pastikan format dan ukuran file sesuai.', 'danger')
+                return render_template('admin/apbdes/create_apbdes.html', title='Tambah APBDes', form=form)
+
+        apbdes = APBDes(
+            tahun=form.tahun.data,
+            judul=form.judul.data,
+            deskripsi=form.deskripsi.data,
+            url_file_apbdes=file_filename,
+            pengunggah=current_user
+        )
+        db.session.add(apbdes)
+        db.session.commit()
+        flash('Data APBDes berhasil ditambahkan!', 'success')
+        return redirect(url_for('kelola_apbdes'))
+    return render_template('admin/apbdes/create_apbdes.html', title='Tambah Data APBDes', form=form)
+
+@app.route('/admin/apbdes')
+@admin_required
+def kelola_apbdes():
+    apbdes_list = APBDes.query.order_by(APBDes.tahun.desc(), APBDes.tanggal_unggah.desc()).all()
+    return render_template('admin/apbdes/list_apbdes.html', title='Kelola APBDes', apbdes_list=apbdes_list)
+
+@app.route('/admin/apbdes/<int:apbdes_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def edit_apbdes(apbdes_id):
+    apbdes = APBDes.query.get_or_404(apbdes_id)
+    form = APBDesForm(obj=apbdes)
+
+    if form.validate_on_submit():
+        if form.file_apbdes.data:
+            # Hapus file lama jika ada yang baru diunggah
+            if apbdes.url_file_apbdes:
+                old_file_path = os.path.join(app.config['UPLOAD_FOLDER'], apbdes.url_file_apbdes)
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
+            
+            file_filename = save_uploaded_file(form.file_apbdes.data)
+            if not file_filename:
+                flash('Gagal mengunggah file baru. Pastikan format dan ukuran file sesuai.', 'danger')
+                return render_template('admin/apbdes/edit_apbdes.html', title='Edit APBDes', form=form, apbdes=apbdes)
+            apbdes.url_file_apbdes = file_filename
+        
+        apbdes.tahun = form.tahun.data
+        apbdes.judul = form.judul.data
+        apbdes.deskripsi = form.deskripsi.data
+        
+        db.session.commit()
+        flash('Data APBDes berhasil diperbarui!', 'success')
+        return redirect(url_for('kelola_apbdes'))
+    
+    elif request.method == 'GET':
+        pass # Form sudah terisi otomatis karena obj=apbdes
+
+    return render_template('admin/apbdes/edit_apbdes.html', title='Edit APBDes', form=form, apbdes=apbdes)
+
+@app.route('/admin/apbdes/<int:apbdes_id>/hapus', methods=['POST'])
+@admin_required
+def hapus_apbdes(apbdes_id):
+    apbdes = APBDes.query.get_or_404(apbdes_id)
+    
+    # Hapus file terkait jika ada
+    if apbdes.url_file_apbdes:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], apbdes.url_file_apbdes)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+    db.session.delete(apbdes)
+    db.session.commit()
+    flash('Data APBDes berhasil dihapus!', 'success')
+    return redirect(url_for('kelola_apbdes'))
+
+# --- Rute APBDes (Publik) ---
+@app.route('/apbdes')
+def daftar_apbdes_publik():
+    apbdes_list = APBDes.query.order_by(APBDes.tahun.desc(), APBDes.tanggal_unggah.desc()).all()
+    return render_template('apbdes/list_apbdes_publik.html', title='Cek APBDes', apbdes_list=apbdes_list)
+
+@app.route('/apbdes/<int:apbdes_id>')
+def detail_apbdes_publik(apbdes_id):
+    apbdes = APBDes.query.get_or_404(apbdes_id)
+    return render_template('apbdes/detail_apbdes_publik.html', title=f"APBDes {apbdes.tahun}", apbdes=apbdes)
 
 
 @app.route('/uploads/<filename>')

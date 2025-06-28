@@ -14,4 +14,5 @@ class Config:
     UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024 # Batas ukuran file (16 Megabyte)
 
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov'}
+    # Menambahkan 'pdf' ke daftar ekstensi yang diizinkan
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov', 'pdf'}

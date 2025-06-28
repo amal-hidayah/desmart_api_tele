@@ -1,0 +1,86 @@
+{% extends 'layout.html' %}
+
+{% block title %}Kelola APBDes - Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow-md">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Kelola Data APBDes</h2>
+
+    <div class="mb-6 text-right">
+        <a href="{{ url_for('buat_apbdes') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+            <i class="fas fa-plus mr-2"></i> Tambah Data APBDes Baru
+        </a>
+    </div>
+
+    {% if apbdes_list %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Tahun
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Judul Dokumen
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Deskripsi
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            File
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Pengunggah
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Tanggal Unggah
+                        </th>
+                        <th scope="col" class="relative px-6 py-3">
+                            <span class="sr-only">Aksi</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for apbdes in apbdes_list %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ apbdes.tahun }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ apbdes.judul }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {{ apbdes.deskripsi[:70] }}{% if apbdes.deskripsi|length > 70 %}...{% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {% if apbdes.url_file_apbdes %}
+                                <a href="{{ url_for('uploaded_file', filename=apbdes.url_file_apbdes) }}" target="_blank" class="text-blue-600 hover:text-blue-800 flex items-center">
+                                    <i class="fas fa-file-alt mr-1"></i> Lihat File
+                                </a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ apbdes.pengunggah.username }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ apbdes.tanggal_unggah.strftime('%d %B %Y %H:%M') }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{{ url_for('edit_apbdes', apbdes_id=apbdes.id) }}" class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</a>
+                            <form action="{{ url_for('hapus_apbdes', apbdes_id=apbdes.id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data APBDes ini?');">
+                                {{ form.csrf_token if form.csrf_token else '' }} {# Flask-WTF CSRF if form is passed, otherwise allow for manual setup #}
+                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-center text-gray-600 p-8 bg-gray-50 rounded-lg border border-gray-200">Belum ada data APBDes yang ditambahkan.</p>
+    {% endif %}
+</div>
+{% endblock %}
