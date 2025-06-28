@@ -3,10 +3,10 @@ from config import Config
 from datetime import datetime
 from extensions import db, login_manager
 
-# Import forms yang dibutuhkan, pastikan APBDesForm sudah ada di forms.py Anda
-from forms import RegistrasiForm, LoginForm, PengaduanForm, BeritaForm, UserEditForm, APBDesForm
+# Import forms yang dibutuhkan
+from forms import RegistrasiForm, LoginForm, PengaduanForm, BeritaForm, UserEditForm, APBDesForm, CSRFForm 
 
-# Import models yang dibutuhkan, pastikan APBDes sudah ada di models.py Anda
+# Import models yang dibutuhkan
 from models import User, Pengaduan, Berita, APBDes 
 
 from flask_login import login_user, logout_user, login_required, current_user
@@ -14,31 +14,32 @@ import os
 from werkzeug.utils import secure_filename
 from functools import wraps
 
-# START - Import Flask-Migrate
+# Import Flask-Migrate
 from flask_migrate import Migrate
-# END - Import Flask-Migrate
+# Import Flask-WTF CSRFProtect
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# PENTING: Inisialisasi CSRFProtect setelah objek 'app' dibuat
+# Ini diperlukan agar Flask-WTF dapat menyediakan 'csrf_impl' ke semua formulir
+csrf = CSRFProtect(app) 
 
 db.init_app(app)
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
-# START - Inisialisasi Flask-Migrate
 migrate = Migrate(app, db)
-# END - Inisialisasi Flask-Migrate
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 def save_uploaded_file(file):
-    # Pastikan file itu ada dan memiliki nama, dan ekstensi diizinkan
     if file and file.filename != '' and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        # Buat folder uploads jika belum ada
         if not os.path.exists(app.config['UPLOAD_FOLDER']):
             os.makedirs(app.config['UPLOAD_FOLDER'])
         
@@ -48,7 +49,7 @@ def save_uploaded_file(file):
             return filename
         except Exception as e:
             app.logger.error(f"Gagal menyimpan file {filename}: {e}")
-            return None # Kembalikan None jika penyimpanan gagal
+            return None
     return None
 
 def allowed_file(filename):
@@ -146,6 +147,7 @@ def buat_pengaduan():
 @app.route('/pengaduan')
 @login_required
 def daftar_pengaduan():
+    # Semua pengguna yang login (warga atau admin) akan melihat semua pengaduan.
     pengaduans = Pengaduan.query.order_by(Pengaduan.tanggal_pengaduan.desc()).all()
     return render_template('pengaduan/list_pengaduan.html', title='Daftar Pengaduan', pengaduans=pengaduans)
 
@@ -166,7 +168,7 @@ def admin_dashboard():
     pengaduan_selesai = Pengaduan.query.filter_by(status='Selesai').count()
     
     latest_pengaduans = Pengaduan.query.order_by(Pengaduan.tanggal_pengaduan.desc()).limit(5).all()
-    latest_apbdes = APBDes.query.order_by(APBDes.tanggal_unggah.desc()).limit(3).all() # Ambil APBDes terbaru
+    latest_apbdes = APBDes.query.order_by(APBDes.tahun.desc(), APBDes.tanggal_unggah.desc()).limit(3).all()
 
     return render_template('admin/dashboard.html', title='Dashboard Admin',
                             total_pengaduan=total_pengaduan,
@@ -174,7 +176,7 @@ def admin_dashboard():
                             pengaduan_diproses=pengaduan_diproses,
                             pengaduan_selesai=pengaduan_selesai,
                             latest_pengaduans=latest_pengaduans,
-                            latest_apbdes=latest_apbdes) # Kirim data APBDes terbaru ke template
+                            latest_apbdes=latest_apbdes)
 
 @app.route('/admin/pengaduan')
 @admin_required
@@ -365,7 +367,10 @@ def buat_apbdes():
 @admin_required
 def kelola_apbdes():
     apbdes_list = APBDes.query.order_by(APBDes.tahun.desc(), APBDes.tanggal_unggah.desc()).all()
-    return render_template('admin/apbdes/list_apbdes.html', title='Kelola APBDes', apbdes_list=apbdes_list)
+    # Buat instance CSRFForm untuk dikirim ke template
+    form_hapus = CSRFForm() 
+    return render_template('admin/apbdes/list_apbdes.html', title='Kelola APBDes', apbdes_list=apbdes_list, form=form_hapus)
+
 
 @app.route('/admin/apbdes/<int:apbdes_id>/edit', methods=['GET', 'POST'])
 @admin_required
@@ -375,7 +380,6 @@ def edit_apbdes(apbdes_id):
 
     if form.validate_on_submit():
         if form.file_apbdes.data:
-            # Hapus file lama jika ada yang baru diunggah
             if apbdes.url_file_apbdes:
                 old_file_path = os.path.join(app.config['UPLOAD_FOLDER'], apbdes.url_file_apbdes)
                 if os.path.exists(old_file_path):
@@ -396,7 +400,7 @@ def edit_apbdes(apbdes_id):
         return redirect(url_for('kelola_apbdes'))
     
     elif request.method == 'GET':
-        pass # Form sudah terisi otomatis karena obj=apbdes
+        pass
 
     return render_template('admin/apbdes/edit_apbdes.html', title='Edit APBDes', form=form, apbdes=apbdes)
 
@@ -405,16 +409,22 @@ def edit_apbdes(apbdes_id):
 def hapus_apbdes(apbdes_id):
     apbdes = APBDes.query.get_or_404(apbdes_id)
     
-    # Hapus file terkait jika ada
-    if apbdes.url_file_apbdes:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], apbdes.url_file_apbdes)
-        if os.path.exists(file_path):
-            os.remove(file_path)
+    # Validasi CSRF token
+    form_hapus = CSRFForm() # Buat instance form hapus juga di sini
+    if form_hapus.validate_on_submit(): 
+        if apbdes.url_file_apbdes:
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], apbdes.url_file_apbdes)
+            if os.path.exists(file_path):
+                os.remove(file_path)
 
-    db.session.delete(apbdes)
-    db.session.commit()
-    flash('Data APBDes berhasil dihapus!', 'success')
-    return redirect(url_for('kelola_apbdes'))
+        db.session.delete(apbdes)
+        db.session.commit()
+        flash('Data APBDes berhasil dihapus!', 'success')
+        return redirect(url_for('kelola_apbdes'))
+    else:
+        flash('Permintaan tidak valid. Mohon coba lagi.', 'danger') 
+        return redirect(url_for('kelola_apbdes'))
+
 
 # --- Rute APBDes (Publik) ---
 @app.route('/apbdes')

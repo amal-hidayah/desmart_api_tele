@@ -1,17 +1,16 @@
-# forms.py
-
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, NumberRange
 from flask_wtf.file import FileField, FileAllowed
 from models import User # Import model User untuk validasi
+# Hapus: from wtforms.csrf.core import CSRFTokenField # TIDAK DIBUTUHKAN LAGI
 
 class RegistrasiForm(FlaskForm):
     username = StringField('Nama Pengguna', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Kata Sandi', validators=[DataRequired()])
     konfirmasi_password = PasswordField('Konfirmasi Kata Sandi',
-                                         validators=[DataRequired(), EqualTo('password')])
+                                          validators=[DataRequired(), EqualTo('password')])
     role = SelectField('Daftar Sebagai', choices=[('warga', 'Warga')], validators=[DataRequired()])
     submit = SubmitField('Daftar')
 
@@ -48,7 +47,6 @@ class BeritaForm(FlaskForm):
     gambar_utama = FileField('Gambar Utama (Opsional)', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Hanya gambar (JPG, PNG, JPEG, GIF)!')])
     submit = SubmitField('Simpan Berita')
 
-# Pastikan UserEditForm ada di sini
 class UserEditForm(FlaskForm):
     username = StringField('Nama Pengguna', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -77,7 +75,6 @@ class UserEditForm(FlaskForm):
             if user:
                 raise ValidationError('Email ini sudah terdaftar. Mohon gunakan email lain.')
 
-# START - Penambahan Form APBDes
 class APBDesForm(FlaskForm):
     tahun = IntegerField('Tahun Anggaran', validators=[DataRequired(), NumberRange(min=2000, max=2100, message='Tahun tidak valid.')])
     judul = StringField('Judul Dokumen APBDes', validators=[DataRequired(), Length(min=5, max=200)])
@@ -86,4 +83,8 @@ class APBDesForm(FlaskForm):
         FileAllowed(['pdf', 'jpg', 'png', 'jpeg'], 'Hanya file PDF atau gambar (JPG, PNG, JPEG)!')
     ])
     submit = SubmitField('Simpan Data APBDes')
-# END - Penambahan Form APBDes
+
+# PERBAIKAN DI SINI:
+# Cukup kosongkan class ini, FlaskForm akan menangani penambahan CSRF token secara otomatis.
+class CSRFForm(FlaskForm):
+    pass
