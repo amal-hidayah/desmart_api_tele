@@ -16,3 +16,12 @@ class Config:
 
     # Menambahkan 'pdf' ke daftar ekstensi yang diizinkan
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov', 'pdf'}
+
+    # --- INFORMASI BOT TELEGRAM (TAMBAHAN) ---
+    TELEGRAM_BOT_TOKEN = '7554457306:AAG8wJ3m9Dw93g-GyNSx91uZB4o1z-knfEQ'
+    TELEGRAM_CHAT_ID = '-4852510201'
+
+    # --- INFORMASI BOT TELEGRAM (TAMBAHAN) ---
+    TELEGRAM_BOT_TOKEN = '7554457306:AAG8wJ3m9Dw93g-GyNSx91uZB4o1z-knfEQ' # Ganti dengan token Anda
+    TELEGRAM_CHAT_ID = '-4852510201'      # Ganti dengan ID grup Anda
+    TELEGRAM_WEBHOOK_SECRET = '123654' # Ganti dengan string acak

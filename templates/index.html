@@ -13,7 +13,7 @@
                 Platform terpadu untuk pengaduan, informasi transparan, dan partisipasi aktif masyarakat.
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up-delay">
-                <a href="{{ url_for('buat_pengaduan') }}" class="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-green-900 font-bold py-3 px-6 sm:px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-base sm:text-lg">
+                <a href="{{ url_for('buat_pengaduan_publik') }}" class="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-green-900 font-bold py-3 px-6 sm:px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-base sm:text-lg">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     Ajukan Pengaduan
                 </a>
@@ -21,13 +21,7 @@
                     <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-3m-2 4l3 3m0 0l3-3m-3 3V4"></path></svg>
                     Lihat Berita
                 </a>
-                {# NEW: Tombol Cek APBDes #}
-                <a href="{{ url_for('daftar_apbdes_publik') }}" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 sm:px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-base sm:text-lg">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2M7 13h10m-5-5v10"></path></svg>
-                    Cek APBDes
-                </a>
-                {# END NEW #}
-            </div>
+                </div>
         </div>
     </section>
 
@@ -68,86 +62,27 @@
     </section>
 
     <style>
-        /* Keyframe for fade-in-down animation */
-        @keyframes fade-in-down {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Keyframe for fade-in-up animation */
-        @keyframes fade-in-up {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Animation for elements appearing on scroll */
-        @keyframes slide-in-up {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Apply animations */
-        .animate-fade-in-down {
-            animation: fade-in-down 1s ease-out forwards;
-        }
-
-        .animate-fade-in-up {
-            animation: fade-in-up 1s ease-out forwards;
-        }
-
-        .animate-fade-in-up-delay {
-            animation: fade-in-up 1s ease-out 0.5s forwards;
-            opacity: 0; /* Start hidden */
-        }
-
-        /* Class to apply for scroll animation target */
-        .animate-on-scroll {
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .animate-on-scroll.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        @keyframes fade-in-down { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slide-in-up { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in-down { animation: fade-in-down 1s ease-out forwards; }
+        .animate-fade-in-up { animation: fade-in-up 1s ease-out forwards; }
+        .animate-fade-in-up-delay { animation: fade-in-up 1s ease-out 0.5s forwards; opacity: 0; }
+        .animate-on-scroll { transition: opacity 0.6s ease-out, transform 0.6s ease-out; opacity: 0; transform: translateY(20px); }
+        .animate-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
     </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             const scrollAnimatedElements = document.querySelectorAll('.animate-on-scroll');
-
             const observer = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target); // Stop observing once animated
+                        observer.unobserve(entry.target);
                     }
                 });
-            }, {
-                root: null, // viewport as root
-                rootMargin: '0px',
-                threshold: 0.1 // Trigger when 10% of the element is visible
-            });
-
+            }, { root: null, rootMargin: '0px', threshold: 0.1 });
             scrollAnimatedElements.forEach(element => {
                 observer.observe(element);
             });

@@ -1,0 +1,94 @@
+{% extends 'layout.html' %}
+{% block title %}Buat Pengaduan - Aplikasi Desa{% endblock %}
+
+{% block content %}
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Formulir Pengaduan Warga</h2>
+        
+        <form method="POST" action="{{ url_for('buat_pengaduan_publik') }}" enctype="multipart/form-data">
+            {{ form.hidden_tag() }} <!-- Ini penting untuk CSRF dan field tersembunyi (latitude, longitude) -->
+
+            <div class="mb-4">
+                {{ form.nama_pelapor.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+                {{ form.nama_pelapor(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+
+            <div class="mb-4">
+                {{ form.kontak_pelapor.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+                {{ form.kontak_pelapor(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+
+            <div class="mb-4">
+                {{ form.judul.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+                {{ form.judul(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+
+            <div class="mb-4">
+                {{ form.lokasi.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+                {{ form.lokasi(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                
+                <!-- Tombol untuk mengambil lokasi GPS -->
+                <button type="button" id="get-location-btn" class="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md text-sm flex items-center transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+                    Gunakan Lokasi Saat Ini
+                </button>
+                <p id="location-status" class="text-xs text-gray-500 mt-1"></p>
+            </div>
+
+            <div class="mb-6">
+                {{ form.deskripsi.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+                {{ form.deskripsi(rows="5", class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+            
+            <div class="mb-6">
+                {{ form.bukti_media.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+                {{ form.bukti_media(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+
+            <div class="flex items-center justify-center">
+                {{ form.submit(class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-md focus:outline-none focus:shadow-outline transition-colors duration-200 cursor-pointer") }}
+            </div>
+        </form>
+    </div>
+
+    <!-- Script JavaScript untuk fitur Geolocation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationBtn = document.getElementById('get-location-btn');
+            // Input field tersembunyi, namanya sesuai dengan yang di forms.py
+            const latitudeInput = document.getElementById('latitude');
+            const longitudeInput = document.getElementById('longitude');
+            const statusP = document.getElementById('location-status');
+
+            locationBtn.addEventListener('click', function() {
+                if (!navigator.geolocation) {
+                    statusP.textContent = 'Geolocation tidak didukung oleh browser Anda.';
+                    statusP.style.color = 'red';
+                    return;
+                }
+
+                statusP.textContent = 'Mencari lokasi...';
+                statusP.style.color = 'orange';
+
+                function success(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // Mengisi nilai ke input field yang tersembunyi
+                    latitudeInput.value = latitude;
+                    longitudeInput.value = longitude;
+                    
+                    statusP.textContent = `Lokasi berhasil ditemukan!`;
+                    statusP.style.color = 'green';
+                }
+
+                function error() {
+                    statusP.textContent = 'Gagal mengambil lokasi. Pastikan Anda mengizinkan akses lokasi di browser.';
+                    statusP.style.color = 'red';
+                }
+
+                navigator.geolocation.getCurrentPosition(success, error);
+            });
+        });
+    </script>
+{% endblock %}

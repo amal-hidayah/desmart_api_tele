@@ -10,6 +10,8 @@
         <p class="text-sm text-gray-600 mb-6">Diajukan oleh: <span class="font-semibold">{{ pengaduan.pembuat.username }}</span> pada {{ pengaduan.tanggal_pengaduan.strftime('%d %B %Y, %H:%M') }}</p>
 
         <form method="POST" action="{{ url_for('update_pengaduan_status', pengaduan_id=pengaduan.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <div class="mb-4">
                 <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Ubah Status:</label>
                 <select name="status" id="status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500">
